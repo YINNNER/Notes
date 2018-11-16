@@ -350,3 +350,100 @@ for (int i = 0; i < 5; i++)
 #### ManualResetEvent的使用
 
 ![image-20181030115133374](images/image-20181030115133374.png)
+
+
+
+## 数据库应用
+
+### 数据库
+
+数据库就是一个存放数据的仓库，这个仓库是按照一定的数据结果来存放、组织的。
+
+常见数据库：
+
+- Excel
+- Access
+- SQLite/MySQL/PostgreSQL
+- Sybase/Microsoft SQL Server
+- Oracle/DB2
+- 非关系数据库：Memcache/**Redis**/MemcacheDB/BerkeleyDB/**MongoDB**/CouchDB
+- 图形数据库：neo4/OrientDB/titanDB/iGraph（阿里巴巴）
+
+
+
+#### 关系型数据库
+
+行式数据库，一行一条记录，一列一个字段
+
+- 对数据一致性要求高
+
+
+
+#### 非关系数据库
+
+NoSQL，本意是"Not Only SQL"
+
+列式数据库，基于键值对的hash数据结构（即Map形式）
+
+- 高性能、高并发
+- 对数据一致性要求不高
+
+
+
+### 数据库连接/访问技术
+
+#### ODBC
+
+底层
+
+开放式数据库连接，是一种用来在数据库管理系统(DBMS)中存取数据的标准应用程序接口。有ODBC API和MFC ODBC两种开发技术。
+
+#### DAO(Data Access Object) 较新
+
+高层
+
+数据访问对象集，是Microsoft 提供的基于一个数据库对象集合的访问技术。和ODBC一样，他们都是Windows API 的一部分。
+
+
+
+#### OLE DB
+
+底层
+
+可访问非关系型数据库
+
+#### ADO(Active Data Object)
+
+高层
+
+#### ADO.NET
+
+高层
+
+#### JDBC
+
+底层
+
+JDBC是一种用于执行SQL语句的Java API，可以为多种关系数据库提供统一访问，它由一组用Java语言编写的类和接口组成。
+
+JDBC与ODBC一样
+
+### .NET环境下使用ODBC访问数据库
+
+### .NET环境下使用OLEDB访问数据库
+
+### .NET环境下使用ADO访问数据库
+
+#### ADO.NET访问数据库思路
+
+1. using System.Data及其相关子命名空间的引用，如System.Data.sqlClient
+2. 使用Connection对象连接数据源
+3. 视情况使用Command对象、DataReader对象
+
+#### 使用Connection连接数据库
+
+#### 使用Command访问数据库
+
+#### 使用DataReader对象访问数据库
+
+#### 使用DataAdapter和DataSet对象访问数据库
