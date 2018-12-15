@@ -6,31 +6,59 @@
 
 ## 1.1 Windows简介
 
-- Windows的主要特点
+### Windows的主要特点
 
-  - 面向对象：窗口、菜单、事件皆是对象。
+- 面向对象：窗口、菜单、事件皆是对象。
 
-    - 对话框与与各种控件是一些特殊的窗口
-    - 对界面元素的操作和消息/事件的处理都按照对象进行。对这些对象的属性和操作，由相关数据结构和API调用函数（或由其封装的MFC和.NET框架中的类）提供。
+  - 对话框与与各种控件是一些特殊的窗口
+  - 对界面元素的操作和消息/事件的处理都按照对象进行。对这些对象的属性和操作，由相关数据结构和API调用函数（或由其封装的MFC和.NET框架中的类）提供。
 
-  - 消息/事件驱动
+- 消息/事件驱动
 
-    ![1544753933697](Windows程序设计.assets/1544753933697.png)
+  ![1544753933697](Windows程序设计.assets/1544753933697.png)
 
-  - 资源共享与数据交换
+- 资源共享与数据交换
 
-    - Windows是抢先式多任务操作系统，应用程序之间共享系统资源。
-    - Windows编程时，必须时刻记住尽早释放不再使用的系统资源，避免系统资源耗尽而造成效率急剧降低和系统死机。
+  - Windows是抢先式多任务操作系统，应用程序之间共享系统资源。
+  - Windows编程时，必须时刻记住尽早释放不再使用的系统资源，避免系统资源耗尽而造成效率急剧降低和系统死机。
 
-  - 设备无关的GDI
+- 设备无关的GDI
 
-    - Windows为应用程序提供了丰富的与设备无关API，免去了为不同的I/O设备编写软件的不同版本之烦恼。如利用与设备无关的GDI，应用程序使用同一函数，可在不同的显卡、打印机和显示器上输出同一个图形。
+  - Windows为应用程序提供了丰富的与设备无关API，免去了为不同的I/O设备编写软件的不同版本之烦恼。如利用与设备无关的GDI，应用程序使用同一函数，可在不同的显卡、打印机和显示器上输出同一个图形。
 
-- XAML：
-  - eXtensible Application Markup Language
-  - 是一种XML
+### Windows的构成
 
+![Windows构成](Windows程序设计.assets/Windows构成.png)
 
+### Windows的图形子系统
+
+1. GDI
+   ​    传统的GDI（Graphics Device Interface，图形设备接口）是微软随Windows 1.0（1985年11月）推出的Windows基本图形子系统，用于与显卡和显示设备无关的图形界面编程，支持WYSIWYG（What You See Is What You Get，所见即所得）。
+2. GDI+
+   ​    新式的GDI+是随Windows XP（2001年10月）推出的GDI的改进版，增加了α混色、渐变画刷、样条曲线、矩阵变换、图像处理、持久路径等新功能，GDI+也是.NET框架中Windows窗体使用的图形子系统。
+3. WPF
+   ​    随Windows Vista和.NET框架3.0（2006年11月）微软又推出了全新的Windows图形子系统WPF（Windows Presentation Foundation，视窗展示基础），它统一了桌面和浏览器等客户端应用程序的图形界面，基于DirectX和.NET框架，采用声明式XAML进行界面设计，是Windows的下一代GUI显示系统。
+   - XAML：
+     - eXtensible Application Markup Language
+     - 是一种XML
+
+## 1.2 Windows编程工具
+
+### .NET框架
+
+.NET框架（.NET Framework）是微软公司为了与Sun/Oracle公司的Java（EE）竞争，于2000年6月提出来的一种**新的跨语言、跨平台、面向组件的操作系统环境**，适用于Web服务（Web services）和因特网（Internet）分布式应用程序的生成、部署和运行。.NET框架也是Windows Vista、Windows 7和Windows 8等新版Windows操作系统的核心部件
+
+### Visual Studio
+
+- Visual Studio（VS，可视工作室）是基于.NET框架软件的开发平台，也是.NET的主要组成部分。
+- Visual Studio采用了支持可视编程的集成开发环境。
+
+### 编程工具的选择
+
+- 在Visual Studio提供的各种语言工具中，只有用Visual C++才能编写传统的Windows应用程序。另外，VC也是VS中唯一的一种**可以同时[混合]编写非托管（API与MFC/ATL）程序和托管（.NET）程序的工具**。
+- VS中的其他语言工具（如C#、VB和F# 等）则只能编写.NET环境下的托管程序
+
+![编程工具](Windows程序设计.assets/编程工具.png)
 
 ## 1.3 Windows Form与WPF应用程序
 
@@ -48,8 +76,6 @@
 
 - 使用C# 或 VB实例化类、设置属性、调用方法以及处理事件
 
-
-
 ## 1.4 字节编码
 
 - 字节编码方式：
@@ -66,6 +92,8 @@
   - 设定目标文件名，创建目标文件；
   - 根据文件集合，依次读入源文件，并写入到目标文件中。
   - 关闭文件资源。
+
+
 
 # 2 动态链接库
 
@@ -98,7 +126,7 @@
 
 1. 载入时动态链接（Load-Time Dynamic Linking）
    - 在**链接时**将函数所在的DLL的**导入库**链接到可执行文件中
-     - 导入库向系统提供了载入DLL时所需的信息，及用于定位DLL函数的地址符号（相当于注册，使其当作API函数使用）
+     - 导入库向系统提供了载入DLL时所需的信息，及用于定位DLL函数的地址符号（相当于注册，使其当作API函数使用，其实API函数就存放在系统DLL当中）
    - 调用模块可以像调用本模块中的函数一样直接使用导出函数名调用DLL中的函数
 2. 运行时动态链接（Run-Time Dynamic Linking）
    - **运行时**可以通过LoadLibrary或LoadLibraryEx函数载入DLL，DLL载入后，模块可以通过调用GetProcAddress获取DLL函数的入口地址，然后就可以通过返回的函数指针调用DLL中的函数了。如此即可避免导入库文件。
@@ -123,11 +151,9 @@
 
   - 使用动态链接库可能造成DLL地狱。
 
-### C#托管程序集
-
 ## 2.2 DLL地狱
 
-- 是指因为系统文件被覆盖而让整个系统像是掉进了地狱。
+-  DLL 地狱（DLL Hell）是指因为系统文件被覆盖而让整个系统像是掉进了地狱。
 
   简单地讲，DLL地狱是指当多个应用程序试图共享一个公用组件时，如某个DLL或某个组件对象模型（COM）类，所引发的一系列问题。
 
@@ -149,6 +175,7 @@
 ### Windows中主要的dll
 
 - Windows API主要以dll的形式封装并提供底层功能调用
+- 各种驱动程序文件如KEYBOARD.DRV、SYSTEM.DRV和MOUSE.DRV和音视频及打印机驱动程序也都是动态链接库，还有以.FON、.SYS和许多以.EXE为扩展名的系统文件都可以是DLL
 
 |     DLL      |                             功能                             |
 | :----------: | :----------------------------------------------------------: |
@@ -157,6 +184,22 @@
 |  GDI32.DLL   |                       图形设备接口库。                       |
 |  ODBC32.DLL  |                           ODBC功能                           |
 |  Ws2_32.dll  |                        socket通信功能                        |
+
+### dll中函数输入/输出参数
+
+1. 传值
+2. ref 
+3. out
+
+![dll函数参数](Windows程序设计.assets/dll函数参数.png)
+
+- 函数参数out方式：
+
+  ```c++
+  int WINAPI GetWindowText( _In_   HWND hWnd,
+   _Out_  LPTSTR lpString, 
+  _In_   int nMaxCount ); 
+  ```
 
 ### dll的引用计数
 
@@ -170,7 +213,7 @@
 
 - Windows 提供内部的地址映射的工作，一个DLL文件被加载后在物理内存中只占一个固定区域，有多个进程使用同一个DLL文件，Windows将这个DLL的内存地址空间通过地址映射后提供给各个进程
 
-- 进程代码地址与DLL映射后地址构成的是进程的虚地址空间，进程在自己的虚地址空间中好像是自己独自在使用这个DLL文件，使用DLL中的函数与程序自身的函数没有区别
+- **进程代码地址与DLL映射后地址构成的是进程的虚地址空间**，进程在自己的虚地址空间中好像是自己独自在使用这个DLL文件，使用DLL中的函数与程序自身的函数没有区别
 
 ### DLL文件的定位
 
@@ -187,15 +230,15 @@
 
 - 托管代码
   - **由公共语言运行库CLR(Common Language Runtime)环境（而不是直接由操作系统）执行的代码**。托管代码应用程序可以获得公共语言运行库服务，例如自动垃圾回收、运行库类型检查和安全支持等。这些服务帮助提供**独立于平台和语言**的、统一的托管代码应用程序行为。
-
 - 非托管代码
-  - 非托管代码与公共语言运行库环境无关。编写这些程序代码使用专用语言编译工具如C++与VB，生成的非托管代码与公共语言运行库环境无关。编写这些程序代码使用专用语言编译工具如C++与VB，生成的是机器可以直接执行的二进制代码，在这些程序中，**用户必须自己提供内存的申请和释放，要保证指针引用的正确性，进行类型检查等功能**，稍有不慎即容易发生地址越界，内存泄露等错误，而且机器也难由这些错误中恢复回来。
-
+  - 非托管代码与公共语言运行库环境无关。编写这些程序代码使用专用语言编译工具如C++与VB，生成的非托管代码与公共语言运行库环境无关。生成的是机器可以直接执行的二进制代码，在这些程序中，**用户必须自己提供内存的申请和释放，要保证指针引用的正确性，进行类型检查等功能**，稍有不慎即容易发生地址越界，内存泄露等错误，而且机器也难由这些错误中恢复回来。
 - 托管与非托管区别：
   - 托管代码中不推荐使用指针
   - 非托管代码可以使用指针来直接读取内存
 - 调用托管的动态链接库
+  - 使用C#创建**类库**(class library)——DLL。
   - 应用反射机制，可以得到托管dll文件中的类方法和属性。
+  - ![托管](Windows程序设计.assets/托管.png)
 
 ### 反射
 
@@ -216,7 +259,7 @@
 ### 调用非托管的动态链接库
 
 - 控件不能满足用户所有需求，可通过Windows的API实现
-- 部分功能用框架类不太合适，也可以依赖Windows的API
+- 部分功能用框架类不太合适，需要依赖Windows的API
 - 调用其他语言（如C++）所编写的动态链接库
 
 ### DllImport属性
@@ -240,11 +283,126 @@
 public static extern int MessageBox(int h,string m,string c,int type)
 ```
 
-- 函数返回值及函数参数类型与创建动态链接库中的函数参数保持一致
+### 数据类型转换
 
-- Blittable Data：在托管代码与非托管代码中的数据类型具有相同的计算机表示，这些数据在参数传递时无须转化即可使用。
+- 函数返回值及函数参数类型与创建动态链接库中的函数参数保持一致。
+  - 数值型直接用对应的就可（DWORD -> int , WORD -> Int16）
+  - API中字符串指针类型-> .net中string
+  - API中句柄 (dWord)  --> .net中IntPtr
+  - API中结构struct   --> .net中结构或者类。注意这种情况下，要先用StructLayout特性限定声明结构或类，虽然比较复杂，在用到时查示例就好，不需死记
 
+![dll数据类型转换](Windows程序设计.assets/dll数据类型转换.png)
 
+- 转换例子：
+
+  - C代码：
+
+- ```c
+   typedef struct tagKEYBDINPUT 
+   {
+      WORD      wVk;
+      WORD      wScan;
+      // KEYEVENTF_EXTENDEDKEY 0x0001
+      // KEYEVENTF_KEYUP 0x0002
+      // KEYEVENTF_SCANCODE 0x0008
+      // KEYEVENTF_UNICODE 0x0004
+      DWORD     dwFlags;
+      DWORD     time;
+      ULONG_PTR dwExtraInfo;
+   } KEYBDINPUT, *PKEYBDINPUT;
+  ```
+
+  - C#代码：
+
+- ```c#
+  [StructLayout(LayoutKind.Sequential)]
+  public struct KEYBDINPUT
+  {
+       public short wVk;
+       public short wScan;
+       // KEYEVENTF_EXTENDEDKEY 0x0001
+       // KEYEVENTF_KEYUP 0x0002
+       // KEYEVENTF_SCANCODE 0x0008
+       // KEYEVENTF_UNICODE 0x0004
+       public int dwFlags;
+       public int time;
+       public IntPtr dwExtraInfo;
+  }
+  ```
+
+- Blittable Data：在托管代码与非托管代码中的数据类型具有相同的计算机表示，这些数据在参数传递时无须转化即可使用。例子如下：
+
+  - C代码：
+
+  - ```c
+     typedef struct tagMOUSEINPUT 
+    {
+      LONG      dx;
+      LONG      dy;
+      DWORD     mouseData;
+      DWORD     dwFlags;
+      DWORD     time;
+      ULONG_PTR dwExtraInfo;
+    } MOUSEINPUT, *PMOUSEINPUT;
+    ```
+
+  - C#代码：
+
+    ```c#
+     [StructLayout(LayoutKind.Sequential)]
+     public struct MOUSEINPUT
+     {
+         public int dx;
+         public int dy;
+         public int mouseData;
+         public int dwFlags;
+         public int time;
+         public IntPtr dwExtraInfo;
+      }
+    ```
+
+## 【实验1】C++创建DLL，C#调用
+
+> 参考 https://www.cnblogs.com/94cool/p/5772376.html
+
+1. 使用C++创建类库(DLL)：Visual C++——> Win32项目——> 应用程序类型：DLL。
+
+2. 添加头文件*.h
+
+3. 修改源文件*.cpp，include上述添加的头文件。
+
+4. 添加导出定义*.def
+
+5. 编译生成dll文件
+
+   - Debug模式下生成的DLL有时会出问题
+
+   - Release模式下生成的DLL才是最终的，先将解决方案切换到Release模式，再在CreateDLL项目名称上右击选择【生成】或【重新生成】
+
+6. 使用dll函数查看器查看导出函数和参数是否正确
+
+7. C#项目调用C++创建的DLL
+
+   ```c#
+   class DllTest
+       {
+           [DllImport(@"../../../Release/dll_cpp.dll", EntryPoint ="testAdd", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = false, CallingConvention = CallingConvention.StdCall)]
+           public static extern int testAdd(int a, int b);
+   
+           [DllImport(@"../../../Release/dll_cpp.dll", EntryPoint = "testMulti", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = false, CallingConvention = CallingConvention.StdCall)]
+           public static extern int testMulti(int a, int b);
+       }
+   ```
+
+8. C#项目中调试c++项目
+
+   1. 需在C#工程右键【属性】->【调试】->【启动调试器】中选中【启动本机代码调试】
+   2. 在C++项目的源码中设置断点，在Debug模式下运行C#程序会自动跳到断点处（该C++项目必须也在当前解决方案中才行）
+
+## 【实验2】C#创建DLL，C#调用（存疑）
+
+1. 使用C#创建类库(DLL)
+2. 在另一个C#项目中添加对这个项目的引用即可。``using xxx;``
 
 # 3 COM原理与技术
 
@@ -1407,7 +1565,7 @@ private static extern int SendMessage(
 - 常见数据库：
   - Excel、Access、SQLite/MySQL/PostgreSQL
   - Sybase、Microsoft SQL Server
-  - Oracle、DB
+  - Oracle、DB2
   - Memcached、Redis、MemcacheDB、BerkeleyDB、Cassandra（Facebook）、Hbase(Apache)、MorgoDB、CouchDB
 
 ### 关系数据库-行式数据库
@@ -1471,6 +1629,51 @@ private static extern int SendMessage(
   - Java数据库连接，是一种用于执行SQL语句的Java API，可以为多种关系数据库提供统一访问，它由一组用Java语言编写的类和接口组成。
   - JDBC与ODBC一样，也是很底层的接口，可以直接调用SQL命令
 
+### ADO与ADO.NET的区别
+
+1. ADO使用OLE DB接口并基于微软的COM技术，而ADO.NET拥有自己的ADO.NET接口并且基于微软的.NET体系架构。
+2. ADO以Recordset存储，而ADO.NET则以DataSet表示。Recordset看起来更像单表，如果让Recordset以多表的方式表示就必须在SQL中进行多表连接。而DataSet可以是多个表的集合。
+3. ADO 的运作是一种在线方式，这意味着不论是浏览或更新数据都必须是实时的。ADO.NET则使用离线方式，在访问数据的时候ADO.NET会利用XML制作数据的一份幅本。ADO.NET的数据库连接也只有在这段时间需要在线。
+
+4. 由于ADO使用COM技术，这就要求所使用的数据类型必须符合COM规范。而ADO.NET基于XML格式，数据类型更为丰富并且不需要再做COM编排导致的数据类型转换，从而提高了整体性能。
+5. ADO.NET为.NET构架提供了优化的数据访问模型，和基于COM的ADO是完全两样的数据访问方式。
+
+ 
+
+ado.net与ado存在着比较大的差异：
+
+1. ado.net遵循更通用的原则，不那么专门面向数据库。
+
+   ado.net集合了所有允许数据处理的类。这些类表示具有典型数据库功能（如索引，排序和视图）的数据容器对象。尽管ado.net是.net数据库应用程序的权威解决方案。但从总体设计上看，它不像ado数据模型那样以数据库为中心，这是ado.net的一大特点。
+
+2. 目前，ado.net提供了两种数据库访问类库：一种用于sql server 7.0 或更高版本。另一种用于其他所有您可能已经安装的ole db提供程序。在这两种情况下，您分别使用不同的类，但遵循相似的命名规则。除前缀，名称都是相同的。前一种情况前缀为sql，后一种情况则是oledb。同时，.net框架还提供了odbc .net的数据访问模式。odbc .net data provider是 .net 框架的增强组件，它可以访问原始的 odbc 驱动程序就像 ole db .net data provider 可以访问原始的 ole db providers 一样。目前它仅在下列驱动程序中测试过：microsoft sql odbc driver，microsoft odbc driver for oracle，microsoft jet odbc driver。
+
+3. ado.net提供了两个队形来处理从数据源中抽取数据，它们是dataset和datareader对象。前者是记录在内存中的缓存，您可以从任何方向随意访问和修改。后者是高度优化的对象，专为以仅向前方式滚动只读记录而设计。
+
+4. ado.net统一了数据容器类编程接口，无论您打算编写何种应用程序，windows窗体，web窗体还是web服务都可以通过同一组类来处理数据。不管在后端的数据源数sql server数据库，ole db，xml文件还是一个数组您都可以通过相同的方法和属性来滚动和处理它们的内容。
+
+5. 在ado中，xml只不过是输入和输出格式。然而在ado.net中，xml是一种数据格式，提供了操作，组织，共享和传递数据的手段。
+
+
+
+ADO.NET相对于ADO等主要有什么改进？
+
+1. ado.net不依赖于ole db提供程序,而是使用.net托管提供的程序,
+
+2. 不使用com
+
+3. 不在支持动态游标和服务器端游
+
+4. 可以断开connection而保留当前数据集可用
+
+5. 强类型转换
+
+6. xml支持
+
+
+
+### 连接方式对比
+
 |  访问接口  | 易用性 | 运行能力 | 可扩展性 | 技术层次 |               突出特点               |
 | :--------: | :----: | :------: | :------: | :------: | :----------------------------------: |
 |    ODBC    |   差   |   较高   |    差    |   底层   |            可进行底层控制            |
@@ -1481,7 +1684,52 @@ private static extern int SendMessage(
 
 ## 6.3 .NET环境下使用ODBC访问数据库
 
+### 访问Oracle
+
+1. 首先下载instantclient-basic-win32-11.2.0.1.0.zip和instantclient-odbc-win32-11.2.0.1.0.zip两个文件，将它们解压，放到同一个文件夹下面，运行odbc_install.exe安装。注意，oracle要与其odbc驱动的位数要匹配，如果不匹配则会报“体系结构不匹配”的错误。
+2. 安装完成后，我们可以在【控制面板】-->【管理工具】-->【数据源(ODBC)】-->【系统DSN】中查看系统中已经安装好的ODBC驱动，其中就包含了“Microsoft ODBC Driver for Oracle”。
+3. 添加odbc数据源
+4. 在程序中，连接字符串格式
+   `Driver={Microsoft ODBC for Oracle}; Server = odbc数据源; Uid = myUsername; Pwd = myPassword;`
+
+### 访问SQLite
+
+1. 通过ODBC来访问操作SQLite数据库需要安装第三方组件库的SQLite ODBC Driver，下载地址 https://www.devart.com/odbc/sqlite/download.html
+2. 安装完成后，我们可以在【控制面板】-->【管理工具】-->【数据源(ODBC)】-->【系统DSN】中查看系统中已经安装好的ODBC驱动，其中就包含了“ODBC driver for sqlite”。
+3. 添加odbc数据源
+4. 在程序中，连接字符串格式
+   `Driver={Microsoft ODBC for sqlite}; Server = odbc数据源; Uid = myUsername; Pwd = myPassword;`
+
 ## 6.4 .NET环境下使用OLEDB方式访问数据库
+
+### 访问Oracle
+
+1. .Net 中读写Oracle数据库常用两种方式：OracleClient和OleDb，其中OleDb的方式根据驱动程序的不同又有两种。
+2. OracleClient方式
+   - 微软专门针对Oracle数据库开发驱动，需要运用类库System.Data.OracleClient.dll
+   - 常用类：OracleConnection、OracleCommand、OracleDataAdapter、OracleTransaction、OracleDataReader
+   - 连接字符串 “`data source=oratest;user id=scott;password=tiger`”
+3. OleDb方式，微软和Oracle公司各自提供了OleDb的驱动程序，使用方法的差别很少
+   - 使用微软的驱动，需要引用类库：System.Data.dll
+   - 使用oracle的驱动，需要安装MDAC
+   - 常用类：OleDbConnection、OleDbCommand、OleDbDataAdapter、OleDbTransaction、OleDbDataReader
+   - 连接字符串格式
+     `string connString = "Provider=OraOLEDB.Oracle.1;User ID=IFSAPP;Password=IFSAPP;Data Source=(DESCRIPTION = (ADDRESS_LIST= (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 1521))) (CONNECT_DATA = (SERVICE_NAME = RACE)))";`
+
+### 访问其他数据库
+
+需要下载相关dll驱动，并使用不同的连接字符串：
+
+1. Excel 97-2003
+   ​	`Provider=Microsoft.ACE.OLEDB.12.0;Data Source=c:\myFolder\myOldExcelFile.xls;Extended Properties=”Excel 8.0;HDR=YES”;`
+2. Excel 2007-2013
+   ​	`Provider=Microsoft.ACE.OLEDB.12.0;Data Source=c:\myFolder\myExcel2007file.xlsx;Extended Properties=”Excel 12.0 Xml;HDR=YES”;`
+3. Access 97-2003
+   ​	`Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\myFolder\myAccessFile.mdb;Persist Security Info=False;`
+4. Access 2007
+   ​	`Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\myFolder\myAccessFile.accdb;Persist Security Info=False;`
+5. SQLite
+   ​	`Data Source=|DataDirectory|\demo.db;Version=3;Password=myPassword`
 
 ## 6.5 .NET环境下使用ADO.NET方式访问数据库
 
@@ -1507,8 +1755,8 @@ private static extern int SendMessage(
 
 ### 6.5.2 DataSet
 
-- ADO.NET的核心组件是**DataSet**，可以将DataSet想像成内存中的数据库，它是不依赖于数据库的独立数据集，这里的独立是指即使断开数据连接或关闭数据连接，DataSet依然可用。
-- 在ADO.NET中，DataSet是专门用来处理从数据源获得数据，无论底层的数据是什么，都可以使用相同的方式来操作从不同数据源取得的数据
+- ADO.NET的核心组件是**DataSet**，可以将DataSet想像成内存中的数据库，它是不依赖于数据库的独立数据集，这里的**独立是指即使断开数据连接或关闭数据连接，DataSet依然可用。**
+- 在ADO.NET中，DataSet是专门用来处理从数据源获得数据，无论底层的数据是什么，都可以使用相同的方式来操作从不同数据源取得的数据。
 - DataSet内部是用XML来描述数据的。
 
 ### 6.5.3 ADO.NET访问数据库思路
@@ -1573,6 +1821,10 @@ private static extern int SendMessage(
 2. 然后使用Command所封装的命令来获取数据，
 3. 并把所获得数据填充到DataSet之中。方法：Fill();
 4. 当DataSet的数据被更新时，反过来负责更新数据库。方法：Update();
+
+![dataset](Windows程序设计.assets/dataset.png)
+
+![dataAdapter](Windows程序设计.assets/dataAdapter.png)
 
 
 
