@@ -425,41 +425,45 @@ public static extern int MessageBox(int h,string m,string c,int type)
 
 - COM所含的概念并不止是在Microsoft Wondows操作系统下才有效
 
-  - COM并不是一个大的API，而是一种**编程方法**，如同[结构化](https://baike.baidu.com/item/%E7%BB%93%E6%9E%84%E5%8C%96%E7%BC%96%E7%A8%8B)[编程](https://baike.baidu.com/item/%E7%BB%93%E6%9E%84%E5%8C%96%E7%BC%96%E7%A8%8B)及面向对象编程方法
+  - COM并不是一个大的API，而是一种**编程方法**，如同结构化编程及面向对象编程方法
 
   - 在任何一种操作系统中，开发人员均可以遵循“COM方法”即组件的思想
 
 ### COM组件
 
+COM组件是什么？
+
 - COM组件是以动态链接库（DLL）或可执行文件（EXE）形式发布的**可执行代码**
   - COM组件并不是DLL，只是利用DLL来给组件提供动态链接的能力
   - COM不是API也不是类
-
 - COM组件是遵循COM规范编写的
-
 - COM组件可以给应用程序、操作系统以及其他组件提供服务
-
 - 自定义的COM组件可以在运行时刻同其他组件连接起来构成某个应用程序
-
 - COM组件运行时可以动态的插入或卸出应用
-
 - COM组件必须是动态链接的
-
 - COM组件必须隐藏（封装）其内部实现细节
-
 - COM组件必须将其实现的语言隐藏
-
 - COM组件必须以二进制的形式发布
+
+COM组件不是什么？
+
+- COM组件不是一种计算机语言
+- COM组件不是DLL，只是利用DLL来给组件提供动态链接的能力
+- COM组件不是一个API函数集。
+- COM组件不是类
 
 ### 接口
 
-- 接口是不同对象间的连接方法
-- 程序通过一组函数进行连接，从而定义了程序不同部分间的接口
+- 接口就是提供两个不同对象间的一种连接。
+- 程序通过一组函数进行连接，这组函数从而定义了程序不同部分间的接口
   - DLL的接口是其所输出的函数
   - C++类的接口是该类的成员函数集
   - COM接口是一组由组件实现的提供给客户使用的函数
+
+接口的实现：
+
 - 组件可以支持任意数目的接口
-- 接口应具有不变性，p组件升级时不应该修改原来的接口，而是添加新的接口
+- 接口应具有不变性，在组件升级时不应该修改原来的接口，而是添加新的接口
   - COM接口在C++中是用纯抽象基类实现
   - 一个COM组件可以支持多个接口
   - 一个C++类可以使用多重继承来实现一个支持多个接口的组件
@@ -467,7 +471,7 @@ public static extern int MessageBox(int h,string m,string c,int type)
 ### COM与DLL的区别
 
 - DLL是对静态链接的改进，带来了更细的开发分工，包括二进制如何交互的问题，尤其是当DLL输出类时的二进制交互问题
-- COM的各种努力都是在规定一种二进制交互协议
+- COM的各种努力都是在规定一种二进制交互协议：
   - COM组件以接口对功能分类，便于组织；DLL特别是大的DLL，函数一大堆，难以组织
   - COM组件便于升级维护，功能扩充，只需添加接口就行；DLL升级困难，函数不能随意改变
   - COM创建调用有很好的安全性，DLL没有
@@ -490,7 +494,15 @@ public static extern int MessageBox(int h,string m,string c,int type)
 
 ### ActiveX、OLE、COM之间的关系
 
-PPT P.11
+- 从时间的角度讲，OLE是最早出现的，然后是COM和ActiveX；
+- 从体系结构角度讲，OLE和 ActiveX是建立在 COM之上的，所以COM是基础；
+- 从名称角度讲，OLE、ActiveX是两个商标名称，而COM则是一个纯技术名词，这也是大家更多的听说 ActiveX和OLE的原因
+  - COM是应OLE的动态数据交换需求，而产生的
+  - COM应用于OLE2
+  - ActiveX是指宽松定义 的、基于COM的技术集合
+  - ActiveX、OLE和COM都是微软的一些技术标准。Ole比较老后来发展成ActiveX，再后来发展成为COM （OCX，DLL是扩展名） 。ActiveX有两种扩展名OCX和DLL
+  - COM的前景以后一种比较理想的应用程序模式就是ＷEB化
+- 可以把COM看作是某种（软件）打包技术，即把它看作是软件的不同部分，按照一定的面向对象的形式，组合成可以交互的过程和以组支持库。COM对象可以用C++、Java和VB等任意一种语言编写，并可以用DLL或作为不同过程工作的执行文件的形式来实现。使用COM对象 的浏览器，无需关心对象是用什么语言写的，也无须关心它是以DLL还是以另外的过程来执行的。
 
 COM和ActiveX区别：
 
@@ -500,17 +512,19 @@ COM和ActiveX区别：
 
 ### COM的注册
 
+- 纯动态链接库(Dll)不需要在系统中注册，仅需要动态加载就能被调用；
+
 - ActiveX注册：
+  - ActiveX不注册不能被系统识别并使用
   - Windows自带ActiveX注册与反注册工具regsvr32.exe
   - 注册：`regsvr32 /s DLLName`
   - 反注册：`regsvr32 /u DLLName`
 - COM注册：
+  - COM不注册也不能被系统使用
   - 32位系统下：%systemroot%\System32\regsvr32.exe
   - 64位系统下：%systemroot%\SysWoW64\regsvr32.exe
   - 一般要将dll/exe文件拷贝至系统目录System32/SysWoW64
   - .Net环境包含Regasm：`Regasm DLLName`
-
-
 
 ## 3.2 COM创建与调用实例
 
@@ -529,6 +543,12 @@ COM和ActiveX区别：
   ![5](Windows程序设计.assets/5.PNG)
 
 ## 3.3 COM技术与OFFICE对象
+
+- Office2003对应的office11
+- Office2007对应的office12
+- Office2010对应的office14
+- Office2013对应的office15
+- 不具备跨平台特性
 
 ### Word对象模型概述
 
@@ -576,8 +596,6 @@ COM和ActiveX区别：
   - Bookmark 对象随文档一起保存，因此当代码停止运行或文档关闭时，它不会被删除
   - 书签编辑时可以隐藏或可见，只要将 View 对象的 ShowBookmarks 属性设置为 True 或 False
 
-
-
 ## 3.4 COM技术操作Word对象
 
 - 流程：
@@ -620,10 +638,28 @@ COM和ActiveX区别：
 - Workbooks对象（工作簿）：
   - 代表Excel应用程序中当前打开的一个工作簿，包含在Workbooks集合中
   - 可以通过Workbooks集合或表示当前活动工作簿的Active Workbook对象访问Workbook对象
+  - 方法：
+    - Add方法 创建新的空白工作簿，并将其添加到集合中。
+    - Open方法 打开工作簿。
+    - Activate方法 激活工作簿，使指定工作簿变为活动工作簿，以便作为Active Workbook对象使用。
+    - Save方法 按当前路径和名称保存现有工作簿(如是首次保存，则将其保存到缺省名称中，如BOOK1.XLS)。
+    - SaveAs方法 首次保存工作簿或用另一名称保存工作簿。
+    - Close方法 关闭工作簿。
+    - PrintOut方法 打印工作簿
 
 - Worksheet对象（工作表）：
 
   - Sheets集合表示工作簿中所有的工作表。可以通过Sheets集合来访问、激活、增加、更名和删除工作表。一个Worksheet对象代表一个工作表。
+
+  - 方法：
+
+    - Worksheets属性 返回Sheets集合。
+    - Name属性 工作表更名。
+    - Add方法 创建新工作表并将其添加到工作簿中。
+    - Select方法 选择工作表。
+    - Copy方法 复制工作表。
+    - Move方法 将指定工作表移到工作簿的另一位置。
+    - Delete方法 删除指定工作表。
 
   - 引用Worksheets：
 
@@ -637,6 +673,19 @@ COM和ActiveX区别：
 
   - 代表工作表的某一单元格、某一行、某一列、某一选定区域或者某一三维区域。
 
+  - 属性、方法 意义：
+
+    - Range属性 Range (arg)其中arg为A1--样式符号，表示单个单元格或单元格区域。
+    - Cells属性 Cells (row, col )(其中row为行号，col为列号)表示单个单元格。
+    - ColumnWidth属性 指定区域中所有列的列宽。
+    - Rowheight属性 指定区域中所有行的行宽。
+    - Value属性 指定区域中所有单元格的值(缺省属性)。
+    - Formula属性 指定单元格的公式，由A1--样式引用。
+    - Select方法 选择范围。
+    - Copy方法 将范围的内容复制到剪贴板。
+    - ClearContents方法 清除范围的内容。
+    - Delete方法 删除指定单元范围。
+
   - 引用单元格范围：
 
     ```C#
@@ -646,11 +695,15 @@ COM和ActiveX区别：
 - Charts对象：
 
   - 代表工作簿中的图表。该图表既可为嵌入式图表(包含于ChartObject对象中)也可为分立的图表工作表。
+  - 方法：
+    - Add方法 新建图表工作表。返回Chart对象。
+    - PrineOut方法 打印图表。
+    - ChartWizard方法 修改给定图表的属性
 
 - WorksheetFunction对象
 
   ```C#
-  myRange=Workshees("Sheet1").Ragnge("A1:C10");
+  myRange=Workshees("Sheet1").Range("A1:C10");
   answer = Application.WorksheetFunction.Min(myRange);
   ```
 
