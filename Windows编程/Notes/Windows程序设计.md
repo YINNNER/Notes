@@ -739,11 +739,21 @@ COM和ActiveX区别：
 
 - 进程和线程技术是实现系统或应用程序并行性的重要基础 
 - 并发：指系统或应用程序在某一时间段内同时处理多个事务的过程
-  - 对于单核单处理器的计算机系统，并发实际上是通过操作系统在各个正在执行的线程之间切换CPU，以分时处理的方式实现表现形式的并发
-- 对于多处理器或多核的计算机系统，其多个CPU之间或多个核之间既有相互协作，又有独立分工，它们在各自执行一个相应线程时可以互不影响同时进行，实现并行处理
-- 除了CPU之外，GPU也是多核系统，通常其并发计算能力非常强
+  - 对于单核单处理器的计算机系统，并发实际上是通过操作系统在各个正在执行的线程之间切换CPU，以分时处理的方式实现表现形式的并发。
+- 对于多处理器或多核的计算机系统，其多个CPU之间或多个核之间既有相互协作，又有独立分工，它们在各自执行一个相应线程时可以互不影响同时进行，实现并行处理。
+- 除了CPU之外，GPU也是多核系统，通常其并发计算能力非常强。
 
 ![6](Windows程序设计.assets/6.PNG)
+
+#### 进程对象数据结构
+
+![进程对象结构](Windows程序设计.assets/进程对象结构.png)
+
+![进程对象结构2](Windows程序设计.assets/进程对象结构2.png)
+
+#### 线程对象数据结构
+
+![线程对象结构](Windows程序设计.assets/线程对象结构.png)
 
 #### 创建进程过程
 
@@ -757,6 +767,10 @@ COM和ActiveX区别：
 #### 进程的创建与启动代码
 
 - C#的System.Diagnostics命名空间下的Process类专门用于完成系统的进程管理任务，通过实例化一个Process类，就可以启动一个独立进程。
+
+- ProcessStartInfo类，则可以为Process定制启动参数
+
+  - 比如RedirectStandardInput、RedirectStandardOutput、RedirectStandardError，分别重定向了进程的输入、输出、错误流
 
   ```C#
   Process cmdP = new Process();
@@ -786,8 +800,8 @@ COM和ActiveX区别：
   Process[] preo = Process.GetProcesses(); 
   foreach (var item in preo)
   {
-  Console.WriteLine(item);
-  item.Kill(); //杀死进程 
+  	Console.WriteLine(item);
+  	item.Kill(); //杀死进程 
   } 
   ```
 
@@ -796,7 +810,7 @@ COM和ActiveX区别：
 - Windows进程间数据共享和通信的机制：
   - IPC（Inter-Process Communications）
   - IPC经常使用C/S模式
-- 通信目的及数据传输量考虑
+- 通信目的及数据传输量考虑：
   - 高级通信（IPC）：传输的数据量大，超过几十个字节
   - 低级通信（同步控制）：传输的数据量小，少于数个字节，或仅是位单位
 
@@ -815,6 +829,14 @@ COM和ActiveX区别：
 6. NetBIOS特殊的网络应用
 
 ![7](Windows程序设计.assets/7.PNG)
+
+#### IPC需要考虑的内容
+
+1. 进程是否会通过网络与其它机器上的进程通信，仅使用本机通信机制是否满足应用需求；
+2. 通信中的进程是否是处于不同的操作系统平台例如Windows与UNIX平台；
+3. 有些进程通信机制是只用于图形化窗体界面的，而不适用于控制台程序；
+4. 通信目的是用于同步控制还是数据的传送;
+5. 数据传输量考虑；
 
 ### 4.1.3 消息机制实现进程通讯
 
@@ -835,7 +857,7 @@ public struct COPYDATASTRUCT
        public IntPtr dwData;
        public int cbData;
     [MarshalAs(UnmanagedType.LPStr)]
-           public string lpData;
+       public string lpData;
 }
 #endregion
 
@@ -844,15 +866,15 @@ public struct COPYDATASTRUCT
 - SendMessage和PostMessage，这两个函数虽然功能非常相似，都是负责向指定的窗口发送消息
 - SendMessage() 函数发出消息后**一直等到接收方的消息响应函数处理完之后才能返回**，并能够得到返回值，在此期间发送方程序将被阻塞，SendMessage() 后面的语句不能被继续执行，即是说此方法是**同步的**。
 - PostMessage() 函数**在发出消息后马上返回**，其后语句能够被立即执行，但是无法获取接收方的消息处理返回值，即是说此方法是**异步的**
-- 只能由SendMessage()来发送，而不能使用PostMessage()
-  - 因为系统必须管理用以传递数据的缓冲区的生命期，如果使用了PostMessage()，数据缓冲区会在接收方（线程）有机会处理该数据之前，就被系统清除和回收。此外如果lpData指向一个带有指针或某一拥有虚函数的对象时，也要小心处理
-  - 如果传入的句柄不是一个有效的窗口或当接收方进程意外终止时，SendMessage()会立即返回，因此发送方在这种情况下不会陷入一个无穷的等待状态中
+- 对于发送消息实现进程通讯，只能由SendMessage()来发送，而不能使用PostMessage()：
+  - 因为系统必须管理用以传递数据的缓冲区的生命期，如果使用了PostMessage()，数据缓冲区会在接收方（线程）有机会处理该数据之前，就被系统清除和回收。此外如果lpData指向一个带有指针或某一拥有虚函数的对象时，也要小心处理。
+  - 如果传入的句柄不是一个有效的窗口或当接收方进程意外终止时，SendMessage()会立即返回，因此发送方在这种情况下不会陷入一个无穷的等待状态中。
 
 #### Winform进程通信实例
 
-- 在发送进程app1，接收进程app2中定义相同的消息类型WM_COPYDATA=0x004A
+- 在发送进程app1，接收进程app2中定义相同的消息类型**WM_COPYDATA=0x004A**
 
-- 在app1中，通过窗体标题找到app2，并调用SendMessage，向app2窗体句柄发送指定消息类型和内容
+- 在app1中，通过窗体标题找到app2，并调用**SendMessage**，向app2窗体句柄发送指定消息类型和内容
 
 - 在app2中，通过**重载函数DefWndProc**实现对消息的接收和处理
 
@@ -877,9 +899,11 @@ public struct COPYDATASTRUCT
 
 #### WPF进程通信实例
 
-- 在发送进程app1，接收进程app2中定义相同的消息类型WM_COPYDATA=0x004A
-- 在app1中，通过窗体标题找到app2，并调用SendMessage，向app2窗体句柄发送指定消息类型和内容
+- 在发送进程app1，接收进程app2中定义相同的消息类型**WM_COPYDATA=0x004A**
+- 在app1中，通过窗体标题找到app2，并调用**SendMessage**，向app2窗体句柄发送指定消息类型和内容
 - 在app2中，通过**自定义窗体钩子程序**截获消息，并进行处理
+
+（钩子函数：钩子函数是Windows消息处理机制的一部分，通过设置“钩子”，应用程序可以在系统级对所有消息、事件进行过滤，访问在正常情况下无法访问的消息。钩子的本质是一段用以处理系统消息的程序，通过系统调用，把它挂入系统。WINDOWS的钩子函数可以认为是WINDOWS的主要特性之一。利用它们，您可以捕捉您自己进程或其它进程发生的事件。通过“钩挂”，您可以给WINDOWS一个处理或过滤事件的回调函数，该函数也叫做“钩子函数”，当每次发生您感兴趣的事件时，WINDOWS都将调用该函数。）
 
 ```C#
 // 页面加载时，添加消息处理钩子函数
@@ -964,9 +988,9 @@ private IntPtr MainWindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam
   process.Close(); 
   ```
 
-  - 若造成窗体没有响应：
-    - 不得在窗体线程中构造耗时的操作
-    - 窗体控件事件函数都属于窗体线程
+  - 同步方式读取会造成窗体没有响应
+  - 不得在窗体线程中构造耗时的操作
+  - 窗体控件事件函数都属于窗体线程（特殊的BackGroundWorker控件）
 
 - 异步读取
 
@@ -1033,6 +1057,11 @@ private IntPtr MainWindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam
 - 有两种形式的管道：
   - 有名管道
   - 无名管道
+- 管道类：
+  - AnonymousPipeClientStream
+  - AnonymousPipeServerStream
+  - NamedPipeClientStream
+  - NamedPipeServerStream
 
 #### 命名管道通信模式
 
@@ -1071,8 +1100,6 @@ private IntPtr MainWindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam
 
 - 控制线程正常终止的方法：低级事件对象ManualResetEvent
 
-
-
 - 线程非正常结束的后果：
   - 内存无法回收－内存泄漏
   - 文件缓冲没写入－文件被破坏
@@ -1088,40 +1115,37 @@ private IntPtr MainWindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam
   - 创建新的Thread对象时，将创建新的托管线程
   - Thread类接收一个ThreadStart委托或ParameterizedThreadStart委托的构造函数，该委托包装了调用Start方法时由新线程调用的方法
 
-```C#
+##### 1. 创建无参数方法的托管线程
+
+```c#
 // 创建无参数方法的托管线程
 // 创建线程
 Thread thread1=new Thread(new ThreadStart(method));
 // 启动线程
 thread1.Start();                                                         
-// 定义无参方法 
+// 1. 定义无参静态方法
 static void method() {                                                
   Console.WriteLine("这是无参的静态方法"); 
 } 
 
+// 2. 定义类方法 
 class ThreadTest
 {
-public void MyThread()
-{
-	Console.WriteLine("这是一个实例方法");
-}
+    public void MyThread()
+    {
+        Console.WriteLine("这是一个实例方法");
+    }
 }
 ThreadTest test= new ThreadTest();
 // 创建线程
-Thread thread2 = new Thread (new ThreadStart 				(test.MyThread()));
+Thread thread2 = new Thread (new ThreadStart(test.MyThread()));
 // 启动线程
 thread2.Start(); 
+```
 
-// 还可以通过匿名委托或Lambda表达式来创建线程
+##### 2. 利用有参的委托ParameterizedThreadStart来创建线程
 
-// 通过匿名委托创建
-Thread thread1 = new Thread(delegate() { Console.WriteLine("我是通过匿名委托创建的线程"); });
-thread1.Start();
-
-// 通过Lambda表达式创建
-Thread thread2 = new Thread(() => Console.WriteLine("我是通过Lambda表达式创建的委托"));
-thread2.Start();
-
+```c#
 // 还可以利用有参的委托ParameterizedThreadStart来创建线程
 class Program
 {
@@ -1141,6 +1165,30 @@ class Program
 }
 ```
 
+##### 3. 通过匿名委托或Lambda表达式来创建线程
+
+```C#
+// 还可以通过匿名委托或Lambda表达式来创建线程
+
+// a. 通过匿名委托创建
+Thread thread1 = new Thread(delegate() { Console.WriteLine("我是通过匿名委托创建的线程"); });
+thread1.Start();
+
+// b. 通过Lambda表达式创建
+Thread thread2 = new Thread(() => Console.WriteLine("我是通过Lambda表达式创建的委托"));
+thread2.Start();
+```
+
+#### 线程的其他操作
+
+c# System.Threading.Thread类的方法：
+
+![thread类方法](Windows程序设计.assets/thread类方法.png)
+
+线程的常用属性：
+
+![线程属性](Windows程序设计.assets/线程属性.png)
+
 #### 前台线程与后台线程
 
 - 前台线程：只有所有的前台线程都结束，应用程序才能结束。默认情况下创建的线程都是前台线程
@@ -1153,39 +1201,38 @@ class Program
 #### 线程的优先级与线程调度
 
 - windows中的线程按照优先级进行调度
-
 - 具有最高优先权的线程一直被执行
 - 相同优先级的线程按时间片轮转执行，时间片在windows系统中通常20ms
 - 当更高优先级的线程就绪时，高优先的线程会抢占执行低优先级的线程
 
+![线程优先性](Windows程序设计.assets/线程优先性.png)
+
 #### 线程状态
 
 1. 初始化--线程处于创始中
-
 2. 就绪--等待由CPU执行
-
 3. 待命--只能有一个线程处于待命状态，离执行状态最近
-
 4. 运行--在CPU的当前时间片内执行
-
 5. 等待--线程同步需要等待
-
 6. 接转--准备执行，但是它的内核堆栈不在内存，需要内存页面调入，调入后进入就绪状态
+7. 终止--线程执行完
 
-7. 终止--线程执行完4.2.2 线程跨域访问
+- 通过ThreadState可以检测线程是处于Unstarted、Sleeping、Running 等等状态，它比 IsAlive 属性能提供更多的特定信息。
 
 #### 多线程
 
 - CPU运行速度太快，硬件处理速度跟不上，所以操作系统进行分时间片管理
   - 从宏观角度来说是多线程并发的，因CPU速度太快，看起来是同时执行不同操作
   - 从微观角度来讲，同一时刻通常只能有一个线程在一个核上处理
-
-- 目前电脑都是多核的，一个核在同一时刻运行一个线程，超线程技术处理两个线程，目前最常见的CPU是8核16线程
-
+- 目前电脑都是多核的，**一个核在同一时刻运行一个线程**，**但是多个核在同一时刻就可以运行多个线程**，超线程技术处理两个线程，目前最常见的CPU是8核16线程
 - 多线程的优点：
   - 线程机制使可以同时完成多个任务；可以使程序的响应速度更快；可以让占用大量处理时间的任务或当前没有进行处理的任务定期将处理时间让给别的任务；可以随时停止任务；可以设置每个任务的优先级以优化程序性能
   - 程序具有异步执行能力以充分发挥机器计算能力，程序还可以利用其他计算机的处理能力
   - 合理的线程分工使得数据计算与用户交互得到均衡
+
+#### 线程的并行
+
+![线程并行](Windows程序设计.assets/线程并行.png)
 
 #### 线程的并发
 
@@ -1214,8 +1261,6 @@ class Program
 - 线程控制代码非常复杂，并可能产生许多bug
 
 - 线程的非正常终结会造成资源浪费影响系统的运行性能
-
-
 
 ### 4.2.2 线程跨域访问
 
@@ -1246,8 +1291,8 @@ class Program
 
 ![9](Windows程序设计.assets/9.PNG)
 
-- 同步方法执行是有序的，异步方法执行是无序的
-- 异步方法的无序包括启动无序和结束无序
+- 同步方法执行是有序的，异步方法执行是无序的。
+- 异步方法的无序包括启动无序和结束无序。
   - 启动无序是因为同一时刻向操作系统申请线程，操作系统收到申请以后，返回执行的顺序是无序的，所以启动是无序的
   - 结束无序是因为虽然线程执行的是同样的操作，但是每个线程的耗时是不同的，所以结束的时候不一定是先启动的线程就先结束
 
@@ -1260,6 +1305,8 @@ class Program
 **解决线程的异步无序问题**：
 
 - 使用回调来解决异步线程的无序问题
+
+- 在BeginInvoke的参数中指定回调函数
 
   ```C#
   // 定义一个回调
@@ -1281,12 +1328,13 @@ class Program
 ### 4.2.4 线程间同步模式/通信机制
 
 - 工作线程可以很容易用SendMessage来发消息
-
 - 窗体线程可以发送ManualResetEvent事件给工作线程
 
  ![10](Windows程序设计.assets/10.PNG)
 
+**WaitHandle类继承关系：**
 
+![waitHandle](Windows程序设计.assets/waitHandle.png)
 
 **线程如何接收消息？**
 
@@ -1295,8 +1343,8 @@ class Program
 
 **工作线程响应前打发时间的两种方法：**
 
-- IsOut+Sleep打法时间的方法
-- ManualResetEvent.WaitOne打法时间的方法
+- IsOut+Sleep打发时间的方法
+- ManualResetEvent.WaitOne打发时间的方法
   - 事件对象可实现并发执行中的前趋控制。当线程调用Wait方法时，如果等待对象状态没有激活，则调用线程暂停。对象被激活则线程继续执行
 
 #### 低级事件对象
@@ -1314,15 +1362,15 @@ public static ManualResetEvent User_Terminate_listen;
 
 ![11](Windows程序设计.assets/11.PNG)
 
-（待补充说明）
-
 #### 工作线程运行逻辑
+
+![工作线程运行逻辑](Windows程序设计.assets/工作线程运行逻辑.png)
 
 #### 工作线程间的通信
 
 - WaitOne方法等待当前事件(信号)有效
-- WaitAny方法等待事件(信号)数组中任一事件有效，对应或关系实现同步
-- WaitAll方法等待事件（信号）数组中所有事件有效，对应与关系实现同步
+- WaitAny方法等待事件(信号)数组中任一事件有效，对应“或”关系实现同步
+- WaitAll方法等待事件（信号）数组中所有事件有效，对应“与”关系实现同步
 
 #### ManualResetEvent.WaitOne要点
 
@@ -1340,13 +1388,17 @@ public static ManualResetEvent User_Terminate_listen;
 
 - 多个线程对共享资源访问会造成冲突。为了避免冲突，必须对共享资源进行同步或控制对共享资源的访问。
 - 如果在相同或不同的应用程序域中未能正确地使访问同步，则会导致出现一些问题，这些问题包括**死锁**和**争用条件**等。
-  - **死锁**是指两个线程都停止响应，并且都在等待对方完成
+  - **死锁**是指两个线程都停止响应，并且都在等待对方完成。
   - **争用条件**是指由于意外的出现，对两个事件的执行时间的临界依赖性而发生反常的结果。
 
 - 需要同步的资源：
   - 系统资源（如通信端口）
   - 多个进程所共享的资源（如文件句柄）
   - 由多个线程访问的单个应用程序域的资源（如全局、静态和实例字段）
+
+#### 同步控制类
+
+![同步控制类](Windows程序设计.assets/同步控制类.png)
 
 #### 互斥量Mutex
 
@@ -1392,15 +1444,19 @@ public static ManualResetEvent User_Terminate_listen;
 #### 消息队列
 
 - Windows能够为每个窗体应用程序维护一个消息队列。应用程序必须从消息队列中获取消息，然后分派给某个窗口。
+- ![消息队列](Windows程序设计.assets/消息队列.png)
 
 #### MSG消息结构
+
 ![12](Windows程序设计.assets/12.PNG)
 
 - 窗体程序解析消息：
   - 不区分是驱动生成的或软件构成
   - 其他程序可复制或修改消息结构
 
+#### 消息机制与窗体资源
 
+![消息机制](Windows程序设计.assets/消息机制.png)
 
 ### 5.2.1 C++窗体程序
 
@@ -1419,6 +1475,7 @@ public static ManualResetEvent User_Terminate_listen;
 - 系统消息分配
 
   - 系统将消息分配到线程队列中
+  - ![系统消息分配](Windows程序设计.assets/系统消息分配.png)
 
 #### 窗体的输出
 
@@ -1463,7 +1520,21 @@ public static ManualResetEvent User_Terminate_listen;
 - 可以对窗体消息处理函数重载，添加新消息值处理
 - **代理**与**回调**是消息机制在C#机制下的一种特殊表现，或者说回调的本质是循环
 
-（PPT-5 P.28~）
+#### 窗体消息处理过程
+
+![窗体1](Windows程序设计.assets/窗体1.png)
+
+##### MFC做法
+
+![窗体2](Windows程序设计.assets/窗体2.png)
+
+![窗体3](Windows程序设计.assets/窗体3.png)
+
+##### .Net做法
+
+![窗体4](Windows程序设计.assets/窗体4.png)
+
+![窗体5](Windows程序设计.assets/窗体5.png)
 
 
 
@@ -1495,6 +1566,8 @@ public static ManualResetEvent User_Terminate_listen;
 
 ### 线程间同步与通信
 
+![线程间通信](Windows程序设计.assets/线程间通信.png)
+
 - 线程向窗体发送消息
 
   - SendMessage
@@ -1520,9 +1593,12 @@ public static ManualResetEvent User_Terminate_listen;
 
 - 消息常量定义
 
-  - 自定义常量可以在窗体和线程间共享，根据windows规定在特定取值范围内，不能与已有值相同
+  - 自定义常量可以在窗体和线程间共享，根据windows规定在特定取值范围内，不能与已有值相同。
 
-
+  ```c#
+  public const int BEGIN_LISTEN = 0x500;
+  public const int END_LISTEN = 0x501;
+  ```
 
 ## 5.4 窗体自定义消息处理
 
@@ -1532,12 +1608,12 @@ public static ManualResetEvent User_Terminate_listen;
 
 #### 自定义消息应用流程
 
-- 系统定义消息值常量
+- 系统定义消息值常量（线程与窗体约定消息常量）
 - 线程发送消息值到窗体对象
 - 窗体消息匹配
-- 执行相应任务，刷新显示等
+- 执行相应任务，刷新显示，窗体控件属性修改等
 
-### C#调用SendMessage
+### 发送消息——工作线程调用SendMessage
 
 ```C#
 [DllImport("User32.dll", EntryPoint = "SendMessage")]
@@ -1550,14 +1626,42 @@ private static extern int SendMessage(
 
 ```
 
-### 应用过程
+#### 接收消息——窗体重载DefWndProc
 
-1. 线程与窗体约定消息常量
-2. 线程发送消息
-3. 窗体消息匹配
-4. 窗体控件属性修改
+- 窗体具有消息循环，消息匹配反复调用回调函数
 
+- 对回调函数进行添加在C#中说法叫override，形式： `protected override void DefWndProc`。
 
+- 其它消息窗体仍在响应
+
+- 自定义消息处理代码
+
+  ```c#
+  switch (m.Msg)
+  {
+  	//接收自定义消息 ，并显示其参数 
+      case BEGIN_LISTEN:
+      	//m.WParam, m.LParam; 
+          label4.Text = "正在监听"; 
+          break;
+  }
+  ```
+
+#### WinForm窗体步骤
+
+1. 消息常量定义
+2. 发送线程查找窗体`SendMessage`
+3. 线程发送消息给窗体
+4. 窗体接收消息`DefWndProc`
+5. 修改控件属性
+
+#### WPF窗体步骤
+
+1. 消息常量定义
+2. 发送线程查找窗体`SendMessage`
+3. 线程发送消息给窗体
+4. 窗体**定义钩子接收**，并处理消息
+5. 修改控件属性
 
 ## 5.5 窗体事件机制
 
@@ -1578,17 +1682,15 @@ private static extern int SendMessage(
 ### 委托
 
 - 它是一个引用类型，内容是方法名称，规定了参数列表
-
 - 参照C\C++语言的函数指针
-
 - 委托保证安全，避免越界与地址无效
-
 - 委托的基类是System.Delegate（抽象类，不能直接实例化）
+  - 系统和编译器可以显式地从 Delegate 类或MulticastDelegate 类派生，用户是不允许由委托类进行派生新类的。
 - 委托是异步（回调）操作和事件处理的重要环节
 
 ### 事件的实现步骤
 
-1. **定义事件参数自定义类**，此类必须由 System.EventArgs 类派生
+1. **定义事件参数自定义类**，此类必须由 `System.EventArgs` 类派生
    - `Public FireEventArgs：EventArgs`
 2. 用delegate 关键字**定义事件对象类型**（含事件发起者以及事件参数）
    - `Public delegate void FireEventHandler(object sender,FireEventArgs fe);`
@@ -1602,10 +1704,123 @@ private static extern int SendMessage(
    - `void ExtinguishFire(object sender, FireEventArgs fe)`
 6. 用 += 操作符**添加事件到事件队列**中， -= 操作符能够将事件从队列中删除。
    - `fireAlarm.FireEvent += new FireAlarm.FireEventHandler(ExtinguishFire);`
-7. 触发事件的地方**调用 delegate 的方式写事件触发方法**。
-   - `fireAlarm.FireEvent(this, fireArgs);`
-8. **调用事件方法触发事件**。
+7. **调用事件方法触发事件**。
    - `fireAlarm.ActivateFireAlarm(string room, int ferocity)`
+   - 触发事件实际上——**调用 delegate 的方式写事件触发方法**。
+     - `fireAlarm.FireEvent(this, fireArgs);`
+
+> ##### 网上对事件的理解：http://www.cnblogs.com/michaelxu/archive/2008/04/02/1134217.html
+>
+> ###### C#中使用事件需要的步骤：
+>
+> 1. 首先创建一个自己的EventArgs类。
+>    EventArgs是包含事件数据的类的基类，此类不包含事件数据，在事件引发时不向事件处理程序传递状态信息的事件会使用此类。如果事件处理程序需要状态信息，则应用程序必须从此类派生一个类来保存数据。
+> 2. 创建一个事件发生的类（事件发生器）：
+>    1. 在这个类中创建一个委托
+>    2. 在这个类中，将创建的委托与特定事件关联(.Net类库中的很多事件都是已经定制好的，所以他们也就有相应的一个委托，在编写关联事件处理程序--也就是当有事件发生时我们要执行的处理事件方法的时候我们需要和这个委托有相同的签名)——
+> 3. 创建一个事件处理的类：
+>    1. 在这个类中编写事件处理程序
+> 4. 实际产生事件和处理事件：
+>    1. 实例化一个事件发生器（事件发生的类对象）
+>    2. 实例化一个事件处理类对象，是一个委托实例。
+>    3. 把这个委托实例添加到产生事件对象的事件列表中去，这个过程又叫**订阅事件**
+>    4. 调用函数触发事件发生。
+>
+> ###### C#中事件产生和实现的流程：
+>
+> 1. 定义A为产生事件的实例，a为A产生的一个事件
+> 2. 定义B为接收事件的实例，b为处理事件的方法
+> 3. A由于用户(程序编写者或程序使用者)或者系统产生一个a事件(例如点击一个Button，产生一个Click事件)
+> 4. A通过事件列表中的委托对象将这个事件通知给B
+> 5. B接到一个事件通知(实际是B.b利用委托来实现事件的接收)
+> 6. 调用B.b方法完成事件处理
+>
+> ```c#
+> //事件数据类
+> internal class KeyEventArgs : EventArgs
+> {
+>     private char keyChar;
+>     public KeyEventArgs( char keyChar ) : base()
+>     {
+>         this.keyChar = keyChar;
+>     }
+> 
+>     public char KeyChar
+>     {
+>         get
+>         {
+>             return keyChar;
+>         }
+>     }
+> }
+> 
+> //事件发生器
+> internal class KeyInputMonitor
+> {
+>     // 创建一个委托，返回类型为void，两个参数
+>     public delegate void KeyDownHandler( object sender, KeyEventArgs e );
+>     // 将创建的委托和特定事件关联,在这里特定的事件为KeyDown
+>     public event KeyDownHandler KeyDown;
+> 
+>     public void Run()
+>     {
+>         bool finished = false;
+>         do
+>         {
+>             Console.WriteLine( "Input a char" );
+>             string response = Console.ReadLine();
+> 
+>             char responseChar = ( response == "" ) ? ' ' : char.ToUpper( response[0] );
+>             switch( responseChar )
+>             {
+>                 case 'X':
+>                     finished = true;
+>                     break;
+>                 default:
+>                     // 得到按键信息的参数
+>                     KeyEventArgs keyEventArgs = new KeyEventArgs( responseChar );
+>                     // 触发事件
+>                     KeyDown( this, keyEventArgs );
+>                     break;
+>             }
+>         }while( !finished );
+>     }
+> }
+> 
+> //事件处理类
+> internal class EventReceiver
+> {
+>     public EventReceiver( KeyInputMonitor monitor )
+>     {
+>         // 产生一个委托实例并添加到KeyInputMonitor产生的事件列表中
+>         monitor.KeyDown += new KeyInputMonitor.KeyDownHandler( this.OnKeyDown );
+>     }
+>     private void OnKeyDown(object sender, KeyEventArgs e)
+>     {
+>         // 真正的事件处理函数
+>         Console.WriteLine( "Capture key: {0}", e.KeyChar );
+>     }
+> }
+> 
+> //触发事件并处理事件
+> public class MainEntryPoint
+> {
+>     public static void Start()
+>     {
+>         // 实例化一个事件发送器
+>         KeyInputMonitor monitor = new KeyInputMonitor();
+>         // 实例化一个事件接收器
+>         EventReceiver eventReceiver = new EventReceiver( monitor );
+>         // 运行
+>         monitor.Run();
+>     }
+> }
+> ```
+>
+> ##### 个人理解：
+>
+> 1. `public delegate void KeyDownHandler( object sender, KeyEventArgs e );`实际上是定义了处理事件的方法应当长成什么样子，是一个委托，后面事件处理函数就按照这个委托的参数格式写。
+> 2. `public event KeyDownHandler KeyDown;`实际上是定义了事件，后面调用它就是触发事件；同时也是一个事件处理列表，后面可以将事件处理函数添加进这个列表。
 
 
 
